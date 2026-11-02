@@ -1,0 +1,24 @@
+@{
+    ViewData["Title"] = "Доступ заборонено (403)";
+}
+
+<div class="row justify-content-center text-center mt-5">
+    <div class="col-md-6">
+        <div class="card border-danger shadow-sm">
+            <div class="card-body p-5">
+                <h1 class="display-1 text-danger fw-bold">403</h1>
+                <h3 class="mb-3">Доступ заборонено</h3>
+                <p class="text-muted">
+                    У вашого облікового запису немає достатніх прав доступу (рольова модель RBAC)
+                    для виконання цієї операції або перегляду цієї сторінки.
+                </p>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-primary mt-2">
+                    Повернутися на головну
+                </a>
+            </div>
+            <div class="card-footer text-muted small bg-light">
+                ЛР №5: Перевірка авторизації через [Authorize(Roles = "...")] безпосередньо перед дією.
+            </div>
+        </div>
+    </div>
+</div>

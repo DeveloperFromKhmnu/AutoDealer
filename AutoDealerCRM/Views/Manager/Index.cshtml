@@ -1,0 +1,76 @@
+@model List<AutoDealerCRM.ViewModels.CarLotManagerViewModel>
+@{
+    ViewData["Title"] = "Керування лотами авто (Кабінет менеджера)";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>📋 Облік лотів авто</h2>
+    <a asp-action="Create" class="btn btn-success fw-bold">+ Додати новий лот</a>
+</div>
+
+<div class="alert alert-info py-2 small">
+    💡 <strong>Безпековий контекст (ЛР №6 та №7):</strong> Як менеджер, ви бачите повний розшифрований VIN-код та аукціонну собівартість. 
+    У базі даних ці значення зберігаються виключно у вигляді шифртексту AES-256-GCM.
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-warning">Лотів ще не створено. Натисніть кнопку вище, щоб додати перше авто.</div>
+}
+else
+{
+    <div class="table-responsive shadow-sm rounded">
+        <table class="table table-hover table-bordered align-middle mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Автомобіль</th>
+                    <th>Рік</th>
+                    <th>Пробіг (км)</th>
+                    <th>Повний VIN (розшифровано)</th>
+                    <th>Собівартість (USD)</th>
+                    <th>Ціна продажу (USD)</th>
+                    <th>Маржа (USD)</th>
+                    <th>Статус</th>
+                    <th>Дії</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var car in Model)
+                {
+                    var margin = car.PublicPrice - car.AuctionCost;
+                    <tr>
+                        <td>@car.Id</td>
+                        <td class="fw-bold">@car.Make @car.Model</td>
+                        <td>@car.Year</td>
+                        <td>@car.MileageKm.ToString("N0")</td>
+                        <td>
+                            <code class="fw-bold text-dark">@car.FullVin</code>
+                        </td>
+                        <td class="text-danger fw-semibold">
+                            $@car.AuctionCost.ToString("N0")
+                        </td>
+                        <td class="text-success fw-semibold">
+                            $@car.PublicPrice.ToString("N0")
+                        </td>
+                        <td class="fw-bold @(margin >= 0 ? "text-primary" : "text-danger")">
+                            +$@margin.ToString("N0")
+                        </td>
+                        <td>
+                            <span class="badge @(car.Status switch {
+                                DeliveryStatus.AtAuction => "bg-secondary",
+                                DeliveryStatus.InTransit => "bg-primary",
+                                DeliveryStatus.AtCustoms => "bg-warning text-dark",
+                                DeliveryStatus.Available => "bg-success",
+                                _ => "bg-dark"
+                            })">@car.StatusDisplay</span>
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@car.Id" class="btn btn-outline-secondary btn-sm">Редагувати</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

@@ -1,0 +1,67 @@
+@model List<AutoDealerCRM.ViewModels.CarLotPublicViewModel>
+@{
+    ViewData["Title"] = "Каталог авто зі США (Copart / IAAI)";
+}
+
+<div class="p-4 p-md-5 mb-4 rounded text-white bg-dark">
+    <div class="col-md-8 px-0">
+        <h1 class="display-5 fst-italic">Доставка авто з аукціонів США</h1>
+        <p class="lead my-3">
+            Підбір, перевірка історії, викуп на Copart та IAAI, доставка в Україну та повне митне очищення.
+        </p>
+        <p class="lead mb-0">
+            <a asp-action="SubmitRequest" class="btn btn-warning fw-bold">Залишити заявку на підбір</a>
+        </p>
+    </div>
+</div>
+
+<h2 class="mb-4">Наявні авто та в дорозі</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        Наразі немає доданих лотів. Якщо ви менеджер або адміністратор — увійдіть у систему для додавання авто.
+    </div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var car in Model)
+        {
+            <div class="col">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <span class="badge @(car.Status switch {
+                            DeliveryStatus.AtAuction => "bg-secondary",
+                            DeliveryStatus.InTransit => "bg-primary",
+                            DeliveryStatus.AtCustoms => "bg-warning text-dark",
+                            DeliveryStatus.Available => "bg-success",
+                            _ => "bg-dark"
+                        })">@car.StatusDisplay</span>
+                        <span class="text-muted fw-bold">@car.Year р.</span>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title text-primary fw-bold">@car.Make @car.Model</h5>
+                        <p class="card-text mb-1">
+                            <strong>Пробіг:</strong> @car.MileageKm.ToString("N0") км
+                        </p>
+                        <p class="card-text mb-2">
+                            <strong>VIN:</strong> 
+                            <code class="bg-light px-2 py-1 rounded text-secondary" title="Конфіденційні дані: масковано для гостей">
+                                @car.MaskedVin
+                            </code>
+                        </p>
+                        <h4 class="text-success fw-bold mt-3">
+                            $@car.PublicPrice.ToString("N0")
+                        </h4>
+                    </div>
+                    <div class="card-footer bg-white border-0">
+                        <a asp-action="SubmitRequest" class="btn btn-outline-primary w-100">
+                            Замовити прорахунок
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

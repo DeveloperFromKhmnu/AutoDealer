@@ -1,0 +1,138 @@
+@inject AutoDealerCRM.Services.ILicenseService LicenseService
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - AutoDealerCRM (USA Copart/IAAI)</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
+                    🚗 AutoDealerCRM
+                </a>
+                
+                <!-- Індикатор ліцензії (ЛР №7: контроль автентичності) -->
+                @{
+                    var lic = LicenseService.CurrentStatus;
+                }
+                @if (lic.IsValid)
+                {
+                    <span class="badge bg-success ms-2" title="Ліцензію верифіковано (HMAC-SHA256). Дійсна до: @lic.ExpiresAt?.ToString("dd.MM.yyyy")">
+                        ✓ Licensed: @lic.Owner
+                    </span>
+                }
+                else
+                {
+                    <span class="badge bg-warning text-dark ms-2" title="@lic.ErrorMessage">
+                        ⚠ Demo Mode
+                    </span>
+                }
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link text-light" asp-controller="Home" asp-action="Index">Каталог авто</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" asp-controller="Home" asp-action="SubmitRequest">Замовити підбір</a>
+                        </li>
+
+                        @if (User.IsInRole("Manager") || User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-info fw-semibold" href="#" role="button" data-bs-toggle="dropdown">
+                                    Кабінет менеджера
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" asp-controller="Manager" asp-action="Index">Керування лотами</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Manager" asp-action="Create">Додати авто</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" asp-controller="Manager" asp-action="Requests">Заявки покупців</a></li>
+                                </ul>
+                            </li>
+                        }
+
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-warning fw-semibold" href="#" role="button" data-bs-toggle="dropdown">
+                                    Адміністрування
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Index">Користувачі та блокування</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="CreateManager">Створити менеджера</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="License">Перевірка ліцензії</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="AuditLogs">Security Audit Log</a></li>
+                                </ul>
+                            </li>
+                        }
+                    </ul>
+
+                    <ul class="navbar-nav">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item d-flex align-items-center me-3 text-light">
+                                <span class="badge bg-secondary me-2">@(User.IsInRole("Admin") ? "Admin" : "Manager")</span>
+                                @User.Identity.Name
+                            </li>
+                            <li class="nav-item">
+                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">Вийти</button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="btn btn-outline-light btn-sm" asp-controller="Account" asp-action="Login">Вхід для персоналу</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted bg-light mt-5 py-3">
+        <div class="container text-center">
+            &copy; 2026 AutoDealerCRM — Навчальний веб-сервіс з кібербезпеки (.NET 8 MVC). Студент: Черняєв, КБЗІ-23-2.
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

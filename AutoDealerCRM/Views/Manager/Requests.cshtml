@@ -1,0 +1,69 @@
+@model List<AutoDealerCRM.ViewModels.BuyerRequestManagerViewModel>
+@{
+    ViewData["Title"] = "Заявки покупців на підбір авто";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>📩 Вхідні заявки покупців</h2>
+    <span class="badge bg-primary fs-6">Всього: @Model.Count</span>
+</div>
+
+<div class="alert alert-info py-2 small">
+    💡 <strong>Безпековий контекст (ЛР №6):</strong> Номери телефонів покупців зашифровані в базі даних (AES-256-GCM). 
+    Розшифрування відбувається на льоту виключно для ролей Manager та Admin.
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-warning">Заявок від покупців ще не надходило.</div>
+}
+else
+{
+    <div class="table-responsive shadow-sm rounded">
+        <table class="table table-hover table-bordered align-middle mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>Дата та час</th>
+                    <th>ПІБ клієнта</th>
+                    <th>Телефон (розшифровано)</th>
+                    <th>Бажана модель</th>
+                    <th>Статус</th>
+                    <th>Дія</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var req in Model)
+                {
+                    <tr class="@(req.IsProcessed ? "table-light text-muted" : "table-white")">
+                        <td>@req.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+                        <td class="fw-bold">@req.FullName</td>
+                        <td>
+                            <a href="tel:@req.Phone" class="badge bg-light text-primary border text-decoration-none fs-6">
+                                📞 @req.Phone
+                            </a>
+                        </td>
+                        <td>@req.DesiredModel</td>
+                        <td>
+                            @if (req.IsProcessed)
+                            {
+                                <span class="badge bg-success">Опрацьовано</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark">Нова заявка</span>
+                            }
+                        </td>
+                        <td>
+                            <form asp-action="ToggleRequestStatus" asp-route-id="@req.Id" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm @(req.IsProcessed ? "btn-outline-secondary" : "btn-outline-success")">
+                                    @(req.IsProcessed ? "Позначити як нову" : "Позначити як опрацьовану")
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

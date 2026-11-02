@@ -1,0 +1,71 @@
+@model AutoDealerCRM.ViewModels.LicenseViewModel
+@{
+    ViewData["Title"] = "Керування ліцензією (dealer.lic)";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-dark text-white py-3">
+                <h4 class="mb-0">Статус ліцензування сервісу</h4>
+            </div>
+            <div class="card-body p-4">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        @if (Model.IsValid)
+                        {
+                            <div class="alert alert-success d-flex align-items-center mb-0">
+                                <span class="fs-1 me-3">✓</span>
+                                <div>
+                                    <h5 class="alert-heading mb-1">Систему ліцензовано</h5>
+                                    <p class="mb-0"><strong>Власник:</strong> @Model.Owner</p>
+                                    <p class="mb-0"><strong>Діє до:</strong> @Model.ExpiresAt?.ToString("dd.MM.yyyy HH:mm")</p>
+                                    <small class="text-success fw-bold">Автентичність підтверджено криптографічним HMAC-SHA256 підписом.</small>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning d-flex align-items-center mb-0">
+                                <span class="fs-1 me-3">⚠</span>
+                                <div>
+                                    <h5 class="alert-heading mb-1">Демонстраційний режим (Demo)</h5>
+                                    <p class="mb-0 text-muted">@Model.Message</p>
+                                    <small class="text-secondary">Завантажте валідний файл dealer.lic нижче.</small>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div class="col-md-4 text-center border-start">
+                        <span class="badge @(Model.IsValid ? "bg-success" : "bg-warning text-dark") fs-5 p-3">
+                            @(Model.IsValid ? "LICENSED" : "DEMO MODE")
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-light py-3">
+                <h5 class="mb-0">Завантаження файлу ліцензії dealer.lic</h5>
+            </div>
+            <div class="card-body p-4">
+                <p class="text-muted small">
+                    <strong>ЛР №7 (Контроль цілісності та автентичності):</strong> Файл <code>dealer.lic</code> містить поля <code>Owner</code>, <code>ExpiresAt</code> та криптографічний код автентичності <code>Signature</code>, обчислений за алгоритмом HMAC-SHA256. Будь-яка зміна навіть одного символу у файлі зробить підпис недійсним.
+                </p>
+
+                <form asp-action="UploadLicense" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Виберіть ліцензійний файл (*.lic, *.json):</label>
+                        <input type="file" name="licenseFile" class="form-control" accept=".lic,.json" required />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary fw-bold">
+                        Завантажити та верифікувати HMAC-SHA256
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

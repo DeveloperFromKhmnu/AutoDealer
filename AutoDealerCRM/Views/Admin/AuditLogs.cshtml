@@ -1,0 +1,92 @@
+@model List<AutoDealerCRM.Models.AuditLogEntry>
+@{
+    ViewData["Title"] = "Security Audit Log";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>🛡️ Журнал подій безпеки (Audit Log)</h2>
+    <span class="badge bg-secondary fs-6">Записів: @Model.Count</span>
+</div>
+
+<div class="alert alert-secondary py-2 small">
+    💡 <strong>Безпековий контекст (ЛР №4 та ЛР №7):</strong> Append-only журнал. 
+    Фіксуються події входу, виходу, створення користувачів, блокування та перевірки ліцензії. Чутливі дані (паролі, VIN) не логуються.
+</div>
+
+<form method="get" class="row g-2 mb-4 align-items-center">
+    <div class="col-auto">
+        <label class="form-label mb-0 fw-semibold">Фільтр за подією:</label>
+    </div>
+    <div class="col-auto">
+        <select name="filter" class="form-select" onchange="this.form.submit()">
+            <option value="">Всі події</option>
+            @foreach (var val in Enum.GetValues<AutoDealerCRM.Models.AuditEventType>())
+            {
+                var isSelected = ViewBag.Filter != null && (AutoDealerCRM.Models.AuditEventType)ViewBag.Filter == val;
+                <option value="@val" selected="@isSelected">@val</option>
+            }
+        </select>
+    </div>
+    @if (ViewBag.Filter != null)
+    {
+        <div class="col-auto">
+            <a asp-action="AuditLogs" class="btn btn-outline-secondary btn-sm">Скинути фільтр</a>
+        </div>
+    }
+</form>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Журнал порожній.</div>
+}
+else
+{
+    <div class="table-responsive shadow-sm rounded">
+        <table class="table table-striped table-hover table-bordered align-middle mb-0 font-monospace small">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Час (UTC)</th>
+                    <th>Тип події</th>
+                    <th>Користувач (Actor)</th>
+                    <th>Ціль (Target)</th>
+                    <th>IP адреса</th>
+                    <th>Деталі</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var log in Model)
+                {
+                    <tr class="@(log.EventType switch {
+                        AuditEventType.LoginFailed => "table-danger",
+                        AuditEventType.UserBlocked => "table-warning",
+                        AuditEventType.LicenseUploadFailed => "table-danger",
+                        AuditEventType.LicenseUploaded => "table-success",
+                        AuditEventType.LoginSuccess => "table-light",
+                        _ => ""
+                    })">
+                        <td>@log.Id</td>
+                        <td>@log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                        <td>
+                            <span class="badge @(log.EventType switch {
+                                AuditEventType.LoginSuccess => "bg-success",
+                                AuditEventType.LoginFailed => "bg-danger",
+                                AuditEventType.Logout => "bg-secondary",
+                                AuditEventType.UserCreated => "bg-info text-dark",
+                                AuditEventType.UserBlocked => "bg-danger",
+                                AuditEventType.UserUnblocked => "bg-success",
+                                AuditEventType.LicenseUploaded => "bg-success",
+                                AuditEventType.LicenseUploadFailed => "bg-danger",
+                                _ => "bg-dark"
+                            })">@log.EventType</span>
+                        </td>
+                        <td class="fw-bold">@log.ActorName</td>
+                        <td>@log.TargetName</td>
+                        <td>@log.IpAddress</td>
+                        <td class="text-wrap">@log.Details</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

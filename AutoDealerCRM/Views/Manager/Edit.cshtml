@@ -1,0 +1,90 @@
+@model AutoDealerCRM.ViewModels.CarLotEditViewModel
+@{
+    ViewData["Title"] = "Редагування лота авто";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-secondary text-white py-3">
+                <h4 class="mb-0">Редагування лота #@Model.Id</h4>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Edit" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="Make" class="form-label fw-semibold">Марка</label>
+                            <input asp-for="Make" class="form-control" />
+                            <span asp-validation-for="Make" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Model" class="form-label fw-semibold">Модель</label>
+                            <input asp-for="Model" class="form-control" />
+                            <span asp-validation-for="Model" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label asp-for="Year" class="form-label fw-semibold">Рік випуску</label>
+                            <input asp-for="Year" class="form-control" type="number" />
+                            <span asp-validation-for="Year" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Mileage" class="form-label fw-semibold">Пробіг (милі)</label>
+                            <input asp-for="Mileage" class="form-control" type="number" />
+                            <span asp-validation-for="Mileage" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="AuctionName" class="form-label fw-semibold">Аукціон</label>
+                            <select asp-for="AuctionName" class="form-select">
+                                <option value="Copart">Copart</option>
+                                <option value="IAAI">IAAI</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="p-3 mb-3 border rounded bg-light">
+                        <h6 class="text-danger fw-bold mb-2">🔒 Конфіденційні комерційні дані (Шифруються AES-256-GCM)</h6>
+                        <div class="mb-3">
+                            <label asp-for="VinCode" class="form-label fw-semibold">Повний VIN-код (17 символів)</label>
+                            <input asp-for="VinCode" class="form-control font-monospace text-uppercase" />
+                            <span asp-validation-for="VinCode" class="text-danger"></span>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="AuctionCost" class="form-label fw-semibold">Собівартість викупу (USD)</label>
+                                <input asp-for="AuctionCost" class="form-control" type="number" step="0.01" />
+                                <span asp-validation-for="AuctionCost" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="PublicPrice" class="form-label fw-semibold">Публічна ціна продажу (USD)</label>
+                                <input asp-for="PublicPrice" class="form-control" type="number" step="0.01" />
+                                <span asp-validation-for="PublicPrice" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Status" class="form-label fw-semibold">Статус доставки</label>
+                        <select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<DeliveryStatus>()"></select>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-outline-secondary">Повернутись</a>
+                        <button type="submit" class="btn btn-primary px-4 fw-bold">Зберегти зміни</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

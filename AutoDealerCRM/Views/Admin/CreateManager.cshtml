@@ -1,0 +1,42 @@
+@model AutoDealerCRM.ViewModels.CreateManagerViewModel
+@{
+    ViewData["Title"] = "Створити менеджера";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-dark text-white py-3">
+                <h4 class="mb-0">Створення облікового запису менеджера</h4>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="CreateManager" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label fw-semibold"></label>
+                        <input asp-for="Email" class="form-control" placeholder="manager2@dealercrm.local" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Password" class="form-label fw-semibold"></label>
+                        <input asp-for="Password" class="form-control" placeholder="Введіть надійний пароль" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                        <small class="text-muted">Пароль буде захешовано за допомогою PBKDF2 з випадковою сіллю.</small>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-outline-secondary">Скасувати</a>
+                        <button type="submit" class="btn btn-warning fw-bold px-4">Створити менеджера</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

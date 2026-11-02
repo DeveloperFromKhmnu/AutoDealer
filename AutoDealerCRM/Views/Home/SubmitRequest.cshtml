@@ -1,0 +1,55 @@
+@model AutoDealerCRM.ViewModels.BuyerRequestFormViewModel
+@{
+    ViewData["Title"] = "Залишити заявку на підбір";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-primary text-white py-3">
+                <h4 class="mb-0">Заявка на підбір авто зі США</h4>
+            </div>
+            <div class="card-body p-4">
+                <p class="text-muted">
+                    Заповніть форму, і наш менеджер зв'яжеться з вами та підготує розрахунок вартості доставки авто «під ключ».
+                    <br />
+                    <small class="text-success">
+                        🔒 Ваші персональні дані (номер телефону) надійно захищені польовим шифруванням AES-256-GCM.
+                    </small>
+                </p>
+
+                <form asp-action="SubmitRequest" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="FullName" class="form-label fw-semibold"></label>
+                        <input asp-for="FullName" class="form-control" placeholder="Іван Іванов" />
+                        <span asp-validation-for="FullName" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Phone" class="form-label fw-semibold"></label>
+                        <input asp-for="Phone" class="form-control" placeholder="+380991234567" />
+                        <span asp-validation-for="Phone" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="DesiredModel" class="form-label fw-semibold"></label>
+                        <textarea asp-for="DesiredModel" class="form-control" rows="3" 
+                                  placeholder="Наприклад: Honda Accord 2018-2020, бюджет до $15000"></textarea>
+                        <span asp-validation-for="DesiredModel" class="text-danger"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold">
+                        Надіслати заявку
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
